@@ -1,0 +1,7 @@
+addi  r1,r0,31 
+addi  r2,r0,-2
+add  r3,r1,r2
+nor   r4,r5,r6 
+and    r5,r1,r0
+slt    r6,r2,r1
+or   r7,r1,r2

@@ -1,0 +1,10 @@
+addi r2,r0,6
+addi r3,r0,8
+sub r5,r3,r2
+L1:
+addi r5,r5,1
+addi r4,r4,3
+beq r4,r2,1
+jump L1
+sw r3,0(r0)
+sw r5,0(r5)

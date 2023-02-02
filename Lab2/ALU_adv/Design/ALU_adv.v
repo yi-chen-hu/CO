@@ -1,0 +1,84 @@
+module ALU_adv( result, zero, overflow, aluSrc1, aluSrc2, invertA, invertB, operation );
+  
+  output wire[15:0] result;
+  output wire zero;
+  output wire overflow;
+
+  input wire[15:0] aluSrc1;
+  input wire[15:0] aluSrc2;
+  input wire invertA;
+  input wire invertB;
+  input wire[1:0] operation;
+
+  /*your code here*/
+//these signal are carryOut of Full_adder of 16 ALUs repectively 
+  wire cout0, cout1, cout2, cout3, cout4, cout5, cout6, cout7, cout8, cout9, cout10,
+   cout11, cout12, cout13, cout14, cout15;
+  wire set;
+  
+  // using prepared module, ALU_1bit,  to implement 16-bit ALU
+  //noticed that signal less of ALU_0 should be signal set
+  ALU_1bit ALU0(result[0], cout0, aluSrc1[0], aluSrc2[0], invertA, invertB, operation, invertB, set);
+  ALU_1bit ALU1(result[1], cout1, aluSrc1[1], aluSrc2[1], invertA, invertB, operation, cout0, 0);
+  ALU_1bit ALU2(result[2], cout2, aluSrc1[2], aluSrc2[2], invertA, invertB, operation, cout1, 0);
+  ALU_1bit ALU3(result[3], cout3, aluSrc1[3], aluSrc2[3], invertA, invertB, operation, cout2, 0);
+  ALU_1bit ALU4(result[4], cout4, aluSrc1[4], aluSrc2[4], invertA, invertB, operation, cout3, 0);
+  ALU_1bit ALU5(result[5], cout5, aluSrc1[5], aluSrc2[5], invertA, invertB, operation, cout4, 0);
+  ALU_1bit ALU6(result[6], cout6, aluSrc1[6], aluSrc2[6], invertA, invertB, operation, cout5, 0);
+  ALU_1bit ALU7(result[7], cout7, aluSrc1[7], aluSrc2[7], invertA, invertB, operation, cout6, 0);
+  ALU_1bit ALU8(result[8], cout8, aluSrc1[8], aluSrc2[8], invertA, invertB, operation, cout7, 0);
+  ALU_1bit ALU9(result[9], cout9, aluSrc1[9], aluSrc2[9], invertA, invertB, operation, cout8, 0);
+  ALU_1bit ALU10(result[10], cout10, aluSrc1[10], aluSrc2[10], invertA, invertB, operation, cout9, 0);
+  ALU_1bit ALU11(result[11], cout11, aluSrc1[11], aluSrc2[11], invertA, invertB, operation, cout10, 0);
+  ALU_1bit ALU12(result[12], cout12, aluSrc1[12], aluSrc2[12], invertA, invertB, operation, cout11, 0);
+  ALU_1bit ALU13(result[13], cout13, aluSrc1[13], aluSrc2[13], invertA, invertB, operation, cout12, 0);
+  ALU_1bit ALU14(result[14], cout14, aluSrc1[14], aluSrc2[14], invertA, invertB, operation, cout13, 0);
+  ALU_1bit ALU15(result[15], cout15, aluSrc1[15], aluSrc2[15], invertA, invertB, operation, cout14, 0);
+  
+ //To determine signal set and signal overflow, I use module, ALU_15, which is  designed by myself
+  ALU_15 inst(aluSrc1[15], aluSrc2[15], invertA, invertB, cout14, operation, set, overflow);
+ 
+ //NAND gate
+  assign zero = ~(result[0] | result[1] | result[2] | result[3] | result[4] | result[5] | result[6] | result[7] | result[8]
+   | result[9] | result[10] | result[11] | result[12] | result[13] | result[14] | result[15]);
+    
+endmodule
+
+
+module ALU_15(a, b, invertA, invertB, cin, aluOP, set, overflow);
+
+input wire a;
+input wire b;
+input wire invertA;
+input wire invertB;
+input wire cin;
+input wire[1:0] aluOP;
+
+output wire set;
+output wire overflow;
+
+wire a_comb;
+wire b_comb;
+wire cout;
+wire set_comb;
+wire overflow_slt;
+
+
+assign a_comb = invertA ? ~a : a;   //using InvertA and 2-to-1 mux to determine signal a should be inverted or not
+assign b_comb = invertB ? ~b : b;   //using InvertB and 2-to-1 mux to determine signal b should be inverted or not
+
+//signal set_comb is signal sum of Full_adder if neglecting overflow
+Full_adder add(.sum(set_comb), .cout(cout), .cin(cin), .inp1(a_comb), .inp2(b_comb));
+
+//僅在加減法時考慮，當所做的運算overflow時才為1，其餘狀況皆為0
+//當兩個數都是正的，但sum(即set_comb)卻是負的，或是當兩個數都是負的，但sum(即set_comb)卻是正的，這兩種情況都算overflow
+//最後將其用boolean expression表示
+assign overflow = aluOP == 2'b10 & ((a_comb & b_comb & ~set_comb) | (~a_comb & ~b_comb & set_comb)) ? 1 : 0;
+
+//overflow_slt是用來判斷在做slt時有沒有overflow
+assign overflow_slt = ((a_comb & b_comb & ~set_comb) | (~a_comb & ~b_comb & set_comb)) ? 1 : 0;
+
+//如果有overflow，就將set_comb invert
+assign set = overflow_slt ? ~set_comb : set_comb;
+
+endmodule

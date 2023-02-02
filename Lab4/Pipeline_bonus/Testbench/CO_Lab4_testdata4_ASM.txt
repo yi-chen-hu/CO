@@ -1,0 +1,6 @@
+addi r2,r0,3
+sw    r2,0(r0)
+slt    r4,r3,r2
+or   r1,r4,r3
+lw    r5,0(r0)
+sw    r5,2(r0)

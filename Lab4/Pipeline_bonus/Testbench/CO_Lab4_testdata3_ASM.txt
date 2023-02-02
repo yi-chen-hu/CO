@@ -1,0 +1,6 @@
+addi   r2,r0,5
+sw    r2,0(r0)
+nor    r4,r3,r2
+and    r1,r4,r3
+lw    r5,0(r0)
+add   r7,r5,r1
