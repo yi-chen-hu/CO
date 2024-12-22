@@ -1,4 +1,4 @@
-NCTU_CO
+NYCU_CO
 ===
 這門課是交大資工所單智君教授開的計算機組織
 
@@ -6,7 +6,7 @@ NCTU_CO
 
 只有 Lab1 是寫組合語言
 
-Lab2、Lab3、Lab4 都是寫 verilog
+Lab2、Lab3、Lab4 都是寫 Verilog
 
 每次的 Lab 都有基礎和進階兩部分
 
